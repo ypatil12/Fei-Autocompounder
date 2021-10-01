@@ -47,9 +47,9 @@ contract FEITribeAutoCompounder is Ownable, ERC20 {
         tribeFeiPath[0] = tribe;
         tribeFeiPath[1] = fei;
 
-        IERC20(fei).approve(univ2Router, uint256(-1));
-        IERC20(tribe).approve(univ2Router, uint256(-1));
-        IERC20(_feiTribeUniPair).approve(tribalChief, uint256(-1));
+        ERC20(fei).approve(univ2Router, uint256(-1));
+        ERC20(tribe).approve(univ2Router, uint256(-1));
+        ERC20(_feiTribeUniPair).approve(tribalChief, uint256(-1));
     }
 
     function getStakedTokens() external view returns(uint256){
@@ -67,7 +67,7 @@ contract FEITribeAutoCompounder is Ownable, ERC20 {
         }
 
         //Get any leftover LP Tokens and deposit
-        uint256 depositAmount = IERC20(feiTribeUniPair).balanceOf(address(this));
+        uint256 depositAmount = ERC20(feiTribeUniPair).balanceOf(address(this));
         ITribalChief(tribalChief).deposit(poolId, depositAmount, 0);
         _mint(msg.sender, shares);
     }
@@ -120,7 +120,7 @@ contract FEITribeAutoCompounder is Ownable, ERC20 {
     function harvest() onlyOwner {
         //Get Tribe reward
         ITribalChief.harvest(poolId, address(this));
-        uint256 tribeBalance = IERC20(tribe).balanceOf(address(this));
+        uint256 tribeBalance = ERC20(tribe).balanceOf(address(this));
 
         if (tribeBalance) > 0{
             //Take fee
@@ -140,8 +140,8 @@ contract FEITribeAutoCompounder is Ownable, ERC20 {
             feiTribeUniPair.swap(amountIn, amountOut, address(this), new bytes(0));
 
             //add liquidity to uniswap pool 
-            uint256 feiBalance = IERC20(fei).balanceOf(address(this));
-            tribeBalance = IERC20(tribe).balannceOf(address(this));
+            uint256 feiBalance = ERC20(fei).balanceOf(address(this));
+            tribeBalance = ERC20(tribe).balanceOf(address(this));
             if (feiBalance > 0 && tribeBalance > 0){
                 IUniswapV2Router(univ2Router).addLiquidity(
                     fei,
@@ -156,8 +156,8 @@ contract FEITribeAutoCompounder is Ownable, ERC20 {
             }
 
             //send dust back to owner
-            feiBalance = IERC20(fei).balanceOf(address(this));
-            tribeBalance = IERC20(tribe).balannceOf(address(this));
+            feiBalance = ERC20(fei).balanceOf(address(this));
+            tribeBalance = ERC20(tribe).balanceOf(address(this));
             
             if (feiBalance > 0){
                 IERC20(fei).safeTransfer(owner(), feiBalance);
@@ -167,7 +167,7 @@ contract FEITribeAutoCompounder is Ownable, ERC20 {
             }
 
             //stake in TribalChief
-            uint256 lpTokens = IERC20(feiTribePair).balanceOf(address(this));
+            uint256 lpTokens = ERC20(feiTribePair).balanceOf(address(this));
             if (lpTokens > 0){
                 ITribalChief(tribalChief).deposit(poolId, lpTokens, 0);
             }
